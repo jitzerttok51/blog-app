@@ -7,25 +7,25 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "dummy")
 @Getter
 @Setter
-@NoArgsConstructor
-public class Dummy {
+@Entity
+@Table(name = "users")
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
     private Long id;
 
-    private String data;
+    @Column(nullable = false)
+    private String username;
 
-    @Override
-    public String toString() {
-        return "Dummy{" + "id=" + id + ", data='" + data + '\'' + '}';
-    }
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String hash;
 }
