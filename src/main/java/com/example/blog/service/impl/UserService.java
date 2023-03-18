@@ -8,10 +8,14 @@ import com.example.blog.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,12 +29,13 @@ public class UserService implements IUserService {
 
     private final ModelMapper mapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     @Transactional
     public UserDTO register(UserCreateDTO userCreate) {
         var entity = mapper.map(userCreate, User.class);
-        entity.setHash("123");
-        // TODO: Save password sha
+        entity.setHash(passwordEncoder.encode(userCreate.getPassword()));
         entity = repository.save(entity);
         return mapper.map(entity, UserDTO.class);
     }
@@ -73,14 +78,37 @@ public class UserService implements IUserService {
     }
 
     public UserDTO updateUser(User user, UserCreateDTO userCreate) {
-        user.setUsername(userCreate.getUsername());
-        user.setEmail(user.getEmail());
-        // TODO: Add update for password
+        if (userCreate.getPassword() != null) {
+            user.setHash(passwordEncoder.encode(userCreate.getPassword()));
+        }
+        if (userCreate.getUsername() != null) {
+            user.setUsername(userCreate.getUsername());
+        }
+        if (userCreate.getEmail() != null) {
+            user.setEmail(userCreate.getEmail());
+        }
         repository.save(user);
         return toUserDTO(user);
     }
 
     private UserDTO toUserDTO(User user) {
         return mapper.map(user, UserDTO.class);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        var user = repository
+            .findUserByUsername(username)
+            .orElseThrow(() -> this.userNotFound(username));
+
+        return toUserDetails(user);
+    }
+
+    private UserDetails toUserDetails(User user) {
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getHash(), List.of());
+    }
+
+    private UsernameNotFoundException userNotFound(String username) {
+        return new UsernameNotFoundException("User with " + username + " was not found");
     }
 }

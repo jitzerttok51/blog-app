@@ -2,6 +2,7 @@ package com.example.blog.service;
 
 import com.example.blog.dto.UserCreateDTO;
 import com.example.blog.dto.UserDTO;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -11,7 +12,7 @@ import java.util.Optional;
  *
  * @author jitzerttok51
  */
-public interface IUserService {
+public interface IUserService extends UserDetailsService {
 
     /**
      * Registers a new user profile to the service
