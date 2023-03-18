@@ -6,6 +6,7 @@ spring:
   jpa:
     show-sql: true
     open-in-view: false
+    generate-ddl: false
     properties:
       hibernate:
         jdbc.time_zone: UTC
@@ -14,5 +15,7 @@ spring:
         order_inserts: true
         format_sql: true
         generate_statistics: true
+
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml
