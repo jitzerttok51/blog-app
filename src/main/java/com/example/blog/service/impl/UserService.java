@@ -126,4 +126,12 @@ public class UserService implements IUserService {
     public Optional<UserDTO> findByEmail(String email) {
         return repository.findUserByEmail(email).map(this::toUserDTO);
     }
+
+    public boolean validatePassword(String username, String password) {
+        var user = repository.findUserByUsername(username);
+        if(user.isEmpty()) {
+            return false;
+        }
+        return passwordEncoder.matches(password, user.get().getHash());
+    }
 }
