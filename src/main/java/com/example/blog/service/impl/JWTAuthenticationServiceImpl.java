@@ -80,7 +80,7 @@ public class JWTAuthenticationServiceImpl implements IJWTAuthenticationService {
         claims.setSubject("User Details");
         claims.setIssuer("blog-app");
         claims.addClaim("username", user.getUsername());
-        var exp = LocalDateTime.now().minusMinutes(DURATION_IN_MIN);
+        var exp = LocalDateTime.now().plusMinutes(DURATION_IN_MIN);
         claims.setExpiration(exp);
         var token = JWTUtils.sign(claims, entry);
         return new AuthResponseDTO(token, exp, "Bearer");
