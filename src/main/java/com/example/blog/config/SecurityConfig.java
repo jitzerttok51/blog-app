@@ -23,7 +23,7 @@ public class SecurityConfig {
         return http.csrf().disable()
                    .cors().disable()
             .authorizeHttpRequests()
-            .requestMatchers(HttpMethod.POST, "/users").permitAll()
+            .requestMatchers(HttpMethod.POST, "/users", "/auth").permitAll()
             .anyRequest().authenticated()
             .and().httpBasic()
             .and().build();

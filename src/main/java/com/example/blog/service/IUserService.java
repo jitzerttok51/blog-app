@@ -61,4 +61,6 @@ public interface IUserService extends UserDetailsService {
     Optional<UserDTO> findByUsername(String username);
 
     Optional<UserDTO> findByEmail(String email);
+
+    boolean validatePassword(String username, String password);
 }

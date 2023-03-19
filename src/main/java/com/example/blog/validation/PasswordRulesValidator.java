@@ -25,6 +25,6 @@ public class PasswordRulesValidator implements ConstraintValidator<ValidPassword
         context.buildConstraintViolationWithTemplate(
                    String.join(",", VALIDATOR.getMessages(result)))
                .addConstraintViolation();
-        return false;
+        return result.isValid();
     }
 }
