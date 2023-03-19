@@ -57,4 +57,8 @@ public interface IUserService extends UserDetailsService {
      * @return the updated user profile
      */
     Optional<UserDTO> editUser(long id, UserCreateDTO userCreate);
+
+    Optional<UserDTO> findByUsername(String username);
+
+    Optional<UserDTO> findByEmail(String email);
 }
