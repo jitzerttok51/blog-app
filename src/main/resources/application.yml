@@ -15,6 +15,9 @@ spring:
         order_inserts: true
         format_sql: true
         generate_statistics: true
+  servlet.multipart:
+    max-file-size: 1024MB
+    max-request-size: 1024MB
 
   liquibase:
     enabled: true
@@ -22,3 +25,7 @@ spring:
 
 #logging.level:
 #   org.springframework.security: DEBUG
+
+# static files
+spring.mvc.static-path-pattern: /storage/**
+spring.web.resources.static-locations: file:./files

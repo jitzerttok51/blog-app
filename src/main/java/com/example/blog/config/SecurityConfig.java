@@ -33,6 +33,7 @@ public class SecurityConfig {
                    .and()
             .authorizeHttpRequests()
             .requestMatchers(HttpMethod.POST, "/users", "/auth").permitAll()
+            .requestMatchers("/storage/**").permitAll()
             .anyRequest().authenticated()
             .and().httpBasic()
             .and().build();
