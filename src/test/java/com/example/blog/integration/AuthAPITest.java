@@ -112,6 +112,10 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(5)
     public void changePassword() throws Exception {
+        // Here we wait for the token to expire so that user is modified not at the JWT creation time
+        // This only happens in Mock MVC because everything uses one JVM process there is no
+        // client server traffic
+        Thread.sleep(1000);
         var body = preform(get("/users/"+adminId), HttpStatus.OK, UserDTO.class);
 
         assertEquals(adminId, body.getId());
@@ -129,7 +133,6 @@ public class AuthAPITest extends AbstractIntegrationTest {
 
         assertEquals(adminId, body.getId());
         assertEquals(ADMIN_USERNAME, body.getUsername());
-        Thread.sleep(3000);
     }
 
     @Test
