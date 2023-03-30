@@ -44,15 +44,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @DirtiesContext
 public class FilesAPITest extends AbstractIntegrationTest {
 
-    public static final String URL_USER_FILE_INFO = "/users/{userId}/files/{fileId}/info";
+    public static final String URL_BASE = "/api";
 
-    public static final String URL_USER_FILE = "/users/{userId}/files/{fileId}";
+    public static final String URL_USERS = URL_BASE + "/users";
 
-    public static final String URL_USER_FILES = "/users/{userId}/files";
+    public static final String URL_USER_FILES = URL_USERS + "/{userId}/files";
 
-    public static final String URL_USERS = "/users";
+    public static final String URL_USER_FILE = URL_USER_FILES + "/{fileId}";
 
-    public static final String URL_AUTH = "/auth";
+    public static final String URL_USER_FILE_INFO = URL_USER_FILE + "/info";
+
+    public static final String URL_AUTH = URL_BASE + "/auth";
 
     public static final String FILE_CHECKSUM = "f78d380cd038c2fbb13a9e56478904492419ebfdf8c56cca92793b9534388937";
 

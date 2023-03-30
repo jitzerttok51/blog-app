@@ -23,9 +23,16 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
 
-#logging.level:
-#   org.springframework.security: DEBUG
+logging.level:
+   org.springframework: DEBUG
 
 # static files
-spring.mvc.static-path-pattern: /storage/**
-spring.web.resources.static-locations: file:./files
+storage.local:
+  location: file:files/
+  url: "http://localhost:8080/storage"
+
+# Spring Actuator
+management:
+  endpoints.web.exposure.include: health,info,mappings,prometheus,metrics,threaddump,logfile,env,auditevents,loggers
+  endpoints.jmx.exposure.exclude: "*"
+  endpoint.health.show-details: always

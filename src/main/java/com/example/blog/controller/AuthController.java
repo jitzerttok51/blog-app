@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.example.blog.constants.URLConstants.ENDPOINT_AUTH;
+
 @RestController
-@RequestMapping("auth")
+@RequestMapping(ENDPOINT_AUTH)
 @RequiredArgsConstructor
 public class AuthController {
 

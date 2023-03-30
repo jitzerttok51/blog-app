@@ -35,6 +35,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @DirtiesContext
 public class AuthAPITest extends AbstractIntegrationTest {
 
+    public static final String URL_BASE = "/api";
+
+    public static final String URL_USERS = URL_BASE + "/users";
+
+    public static final String URL_AUTH = URL_BASE +  "/auth";
+
+    public static final String URL_USER = URL_USERS + "/{userId}";
+
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -73,7 +81,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     public void createAdminUser() throws Exception {
         var requestBody = basicUser(ADMIN_USERNAME, ADMIN_PASSWORD);
 
-        var request = post("/users")
+        var request = post(URL_USERS)
             .contentType(MediaType.APPLICATION_JSON)
             .content(getMapper().writeValueAsString(requestBody));
 
@@ -90,7 +98,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     public void getAuthenticationToken() throws Exception {
         var requestBody = loginDTO(ADMIN_USERNAME, ADMIN_PASSWORD);
 
-        var request = post("/auth")
+        var request = post(URL_AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content(getMapper().writeValueAsString(requestBody));
 
@@ -103,7 +111,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(4)
     public void testToken() throws Exception {
-        var body = preform(get("/users"), HttpStatus.OK, UserDTO[].class);
+        var body = preform(get(URL_USERS), HttpStatus.OK, UserDTO[].class);
 
         assertEquals(1, body.length);
         assertEquals(ADMIN_USERNAME, body[0].getUsername());
@@ -116,7 +124,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
         // This only happens in Mock MVC because everything uses one JVM process there is no
         // client server traffic
         Thread.sleep(1000);
-        var body = preform(get("/users/"+adminId), HttpStatus.OK, UserDTO.class);
+        var body = preform(get(URL_USER, adminId), HttpStatus.OK, UserDTO.class);
 
         assertEquals(adminId, body.getId());
         assertEquals(ADMIN_USERNAME, body.getUsername());
@@ -125,7 +133,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
         requestBody.setPassword(ADMIN_PASSWORD_CHANGED);
         requestBody.setConfirmPassword(ADMIN_PASSWORD_CHANGED);
 
-        var request = put("/users/"+adminId)
+        var request = put(URL_USER, adminId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(getMapper().writeValueAsString(requestBody));
 
@@ -138,7 +146,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(6)
     public void testTokenAfterPasswordChange() throws Exception {
-        preform(get("/users"), HttpStatus.UNAUTHORIZED);
+        preform(get(URL_USERS), HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -146,7 +154,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     public void typUsingOldPassword() throws Exception {
         var requestBody = loginDTO(ADMIN_USERNAME, ADMIN_PASSWORD);
 
-        var request = post("/auth")
+        var request = post(URL_AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content(getMapper().writeValueAsString(requestBody));
 
@@ -158,7 +166,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     public void getNewToken() throws Exception {
         var requestBody = loginDTO(ADMIN_USERNAME, ADMIN_PASSWORD_CHANGED);
 
-        var request = post("/auth")
+        var request = post(URL_AUTH)
             .contentType(MediaType.APPLICATION_JSON)
             .content(getMapper().writeValueAsString(requestBody));
 
@@ -171,7 +179,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(9)
     public void testNewToken() throws Exception {
-        var body = preform(get("/users"), HttpStatus.OK, UserDTO[].class);
+        var body = preform(get(URL_USERS), HttpStatus.OK, UserDTO[].class);
 
         assertEquals(1, body.length);
         assertEquals(ADMIN_USERNAME, body[0].getUsername());
@@ -180,13 +188,13 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(10)
     public void deleteAdminAccount() throws Exception {
-        preform(delete("/users/"+adminId), HttpStatus.OK);
+        preform(delete(URL_USER, adminId), HttpStatus.OK);
     }
 
     @Test
     @Order(11)
     public void testTokenAfterAccountDeletion() throws Exception {
-        preform(get("/users"), HttpStatus.UNAUTHORIZED);
+        preform(get(URL_USERS), HttpStatus.UNAUTHORIZED);
     }
 
     private UserCreateDTO fromUserDTO(UserDTO user) {

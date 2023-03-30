@@ -17,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.util.Collection;
 
+import static com.example.blog.constants.URLConstants.ENDPOINT_FILES;
+
 @RestController
-@RequestMapping("/files")
+@RequestMapping(ENDPOINT_FILES)
 @RequiredArgsConstructor
 public class FilesController {
 
