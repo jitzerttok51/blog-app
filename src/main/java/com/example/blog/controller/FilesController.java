@@ -25,18 +25,21 @@ public class FilesController {
     private final IFileService fileService;
 
     @PostMapping
-    public ArtifactDTO upload(@RequestParam("file") MultipartFile file) {
-        return fileService.upload(file);
+    public ResponseEntity<ArtifactDTO> upload(@RequestParam("file") MultipartFile file) {
+        var result = fileService.uploadFile(file);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
     }
 
     @GetMapping
     public Collection<ArtifactDTO> getFiles() {
-        return fileService.getArtifacts();
+        return fileService.getFiles();
     }
 
     @GetMapping("{id}")
     public ResponseEntity<URI> getFile(@PathVariable long id) {
-        var opt = fileService.getDownloadURL(id);
+        var opt = fileService.getFileDownloadURL(id);
         if (opt.isEmpty()) {
             return ResponseEntity
                 .notFound()
@@ -51,12 +54,12 @@ public class FilesController {
 
     @GetMapping("{id}/info")
     public ResponseEntity<ArtifactDTO> getFileInfo(@PathVariable long id) {
-        return ResponseEntity.of(fileService.getInfo(id));
+        return ResponseEntity.of(fileService.getFileInfo(id));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
-        var result = fileService.delete(id);
-        return ResponseEntity.status(result ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND).build();
+        fileService.deleteFile(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

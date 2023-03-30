@@ -1,0 +1,14 @@
+spring:
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        generate_statistics: false
+        format_sql: true
+
+
+
+logging.level:
+#  org.testcontainers.containers: INFO
+  com.example.blog: DEBUG

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -60,14 +61,15 @@ public class JWTAuthenticationServiceImpl implements IJWTAuthenticationService {
     public void loginWithKey(String token) {
         try {
             var claims = JWTUtils.verify(token, entry);
-            authenticate(getUsername(claims));
-        } catch (JWTInvalidClaimsException | JWTExpiredException | JWTInvalidSignatureException e) {
+            authenticate(getUsername(claims), claims.getIssuedAt());
+        } catch (JWTInvalidClaimsException | JWTExpiredException | JWTInvalidSignatureException |
+                                 UsernameNotFoundException e) {
             throw new AuthenticationException("Invalid JWT token", HttpStatus.BAD_REQUEST);
         }
     }
 
-    private void authenticate(String username) {
-        var user = userService.loadUserByUsername(username);
+    private void authenticate(String username, LocalDateTime jwtCreationDate) {
+        var user = userService.loadUserByUsername(username, jwtCreationDate);
         var authToken = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
             user.getAuthorities());
         if(SecurityContextHolder.getContext().getAuthentication() == null) {

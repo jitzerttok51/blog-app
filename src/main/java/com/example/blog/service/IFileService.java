@@ -1,6 +1,7 @@
 package com.example.blog.service;
 
 import com.example.blog.dto.ArtifactDTO;
+import com.example.blog.dto.FileEditDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -9,13 +10,15 @@ import java.util.Optional;
 
 public interface IFileService {
 
-    ArtifactDTO upload(MultipartFile file);
+    ArtifactDTO uploadFile(MultipartFile file);
 
-    Optional<URI> getDownloadURL(long id);
+    Optional<URI> getFileDownloadURL(long id);
 
-    Optional<ArtifactDTO> getInfo(long id);
+    Optional<ArtifactDTO> getFileInfo(long id);
 
-    boolean delete(long id);
+    void deleteFile(long id);
 
-    Collection<ArtifactDTO> getArtifacts();
+    void editFile(long fileId, FileEditDTO edit);
+
+    Collection<ArtifactDTO> getFiles();
 }
