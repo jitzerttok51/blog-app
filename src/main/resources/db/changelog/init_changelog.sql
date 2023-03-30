@@ -24,11 +24,27 @@ CREATE TABLE IF NOT EXISTS "files"
     "id"            BIGSERIAL           NOT NULL,
     "created_date"  TIMESTAMP(6)        NOT NULL,
     "modified_date" TIMESTAMP(6)        NOT NULL,
-    "sha256"        VARCHAR(255) UNIQUE NOT NULL,
-    "name"          VARCHAR(255) UNIQUE NOT NULL,
+    "checksum"      VARCHAR(255) UNIQUE NOT NULL,
+    "path"          VARCHAR(255) UNIQUE NOT NULL,
     "type"          VARCHAR(255)        NOT NULL,
     "file_type"     VARCHAR(255)        NOT NULL,
     "container"     VARCHAR(255)        NOT NULL,
     "size"          BIGINT              NOT NULL,
     PRIMARY KEY ("id")
+);
+
+-- changeset jitzerttok51:4
+-- Add owners table
+CREATE TABLE IF NOT EXISTS "files_owner"
+(
+    "id"            BIGSERIAL           NOT NULL,
+    "created_date"  TIMESTAMP(6)        NOT NULL,
+    "modified_date" TIMESTAMP(6)        NOT NULL,
+    "visibility"    VARCHAR(255)        NOT NULL,
+    "owner_id"      BIGINT              NOT NULL,
+    "file_id"       BIGINT              NOT NULL,
+
+    PRIMARY KEY ("id"),
+    CONSTRAINT "fk_owner_id" FOREIGN KEY ("owner_id") REFERENCES "users"("id"),
+    CONSTRAINT "fk_files_id" FOREIGN KEY ("file_id") REFERENCES "files"("id")
 );

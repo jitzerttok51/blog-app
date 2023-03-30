@@ -2,8 +2,11 @@ package com.example.blog.service;
 
 import com.example.blog.dto.UserCreateDTO;
 import com.example.blog.dto.UserDTO;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -63,4 +66,6 @@ public interface IUserService extends UserDetailsService {
     Optional<UserDTO> findByEmail(String email);
 
     boolean validatePassword(String username, String password);
+
+    UserDetails loadUserByUsername(String username, LocalDateTime notModifiedAfter) throws UsernameNotFoundException;
 }

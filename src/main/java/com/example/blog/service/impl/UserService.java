@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -105,6 +106,19 @@ public class UserService implements IUserService {
         var user = repository
             .findUserByUsername(username)
             .orElseThrow(() -> this.userNotFound(username));
+
+        return toUserDetails(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username, LocalDateTime notModifiedAfter)
+        throws UsernameNotFoundException {
+
+        var user = repository
+            .findUserByUsername(username)
+            .filter(u->u.getModifiedDate().minusSeconds(1).isBefore(notModifiedAfter))
+            .orElseThrow(() -> this.userNotFound(username));
+
 
         return toUserDetails(user);
     }
