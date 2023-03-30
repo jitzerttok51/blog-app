@@ -129,7 +129,7 @@ public class AuthAPITest extends AbstractIntegrationTest {
 
         assertEquals(adminId, body.getId());
         assertEquals(ADMIN_USERNAME, body.getUsername());
-        Thread.sleep(1000);
+        Thread.sleep(3000);
     }
 
     @Test
