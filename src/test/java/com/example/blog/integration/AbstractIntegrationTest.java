@@ -13,6 +13,7 @@ package com.example.blog.integration;
 import com.example.blog.dto.AuthDTO;
 import com.example.blog.dto.AuthResponseDTO;
 import com.example.blog.dto.UserCreateDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -95,6 +96,20 @@ public class AbstractIntegrationTest {
             .andReturn().getResponse().getContentAsString();
 
         return mapper.readValue(response, clazz);
+    }
+
+    protected <T> T preform(MockHttpServletRequestBuilder request, HttpStatus status, TypeReference<T> ref) throws Exception {
+        if(!accessToken.isBlank()) {
+            request = request.header("Authorization", accessToken);
+        }
+        var response = this.mockMvc
+            .perform(request)
+            .andDo(print())
+            .andExpect(status().is(status.value()))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn().getResponse().getContentAsString();
+
+        return mapper.readValue(response, ref);
     }
 
     protected void preform(MockHttpServletRequestBuilder request, HttpStatus status) throws Exception {

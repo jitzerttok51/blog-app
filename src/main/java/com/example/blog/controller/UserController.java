@@ -62,11 +62,7 @@ public class UserController {
 
     @GetMapping("{id}/files")
     public ResponseEntity<Set<ArtifactDTO>> getUserFiles(@PathVariable long id) {
-        var set = fileService.userGetAllFiles(id);
-        if(set.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(set);
+        return ResponseEntity.ok(fileService.userGetAllFiles(id));
     }
 
     @GetMapping("{id}/files/{fileId}/info")
@@ -80,8 +76,14 @@ public class UserController {
         return ResponseEntity.of(fileService.userEditFile(id, fileId, edit));
     }
 
+    @DeleteMapping("{id}/files/{fileId}")
+    public ResponseEntity<ArtifactDTO> deleteUserFile(@PathVariable long id, @PathVariable long fileId) {
+        fileService.userDeleteFile(id, fileId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("{id}/files")
-    public ResponseEntity<ArtifactDTO> editUserFile(@PathVariable long id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ArtifactDTO> createUserFile(@PathVariable long id, @RequestParam("file") MultipartFile file) {
         var result = fileService.uploadFile(file);
         return ResponseEntity
             .status(HttpStatus.CREATED)

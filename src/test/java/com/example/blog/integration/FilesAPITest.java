@@ -6,6 +6,7 @@ import com.example.blog.dto.ArtifactDTO;
 import com.example.blog.dto.AuthResponseDTO;
 import com.example.blog.dto.FileEditDTO;
 import com.example.blog.dto.UserDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -22,10 +23,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -43,11 +48,15 @@ public class FilesAPITest extends AbstractIntegrationTest {
 
     public static final String URL_USER_FILES = "/users/{userId}/files";
 
-    public static final String URL_FILES = "/files";
-
     public static final String URL_USERS = "/users";
 
     public static final String URL_AUTH = "/auth";
+
+    public static final String FILE_CHECKSUM = "f78d380cd038c2fbb13a9e56478904492419ebfdf8c56cca92793b9534388937";
+
+    public static final String FILE_CONTENT_TYPE = "image/jpeg";
+
+    public static final String FILE_TYPE = "image";
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -115,7 +124,7 @@ public class FilesAPITest extends AbstractIntegrationTest {
 
         var artifact = preform(request, HttpStatus.CREATED, ArtifactDTO.class);
         pic1Id = artifact.getId();
-        // TODO: Validate artifact
+        assertImage(artifact, FileVisibility.PRIVATE);
     }
 
     @Test
@@ -126,7 +135,7 @@ public class FilesAPITest extends AbstractIntegrationTest {
         var request = get(URL_USER_FILE_INFO, user1ID, pic1Id);
 
         var artifact = preform(request, HttpStatus.OK, ArtifactDTO.class);
-        // TODO: Validate artifact
+        assertImage(artifact, FileVisibility.PRIVATE);
     }
 
     @Test
@@ -152,7 +161,7 @@ public class FilesAPITest extends AbstractIntegrationTest {
             .content(getMapper().writeValueAsString(reqBody));
 
         var artifact = preform(request, HttpStatus.OK, ArtifactDTO.class);
-        // TODO: Validate artifact
+        assertImage(artifact, FileVisibility.PUBLIC);
     }
 
     @Test
@@ -163,13 +172,110 @@ public class FilesAPITest extends AbstractIntegrationTest {
         var request = get(URL_USER_FILE_INFO, user1ID, pic1Id);
 
         var artifact = preform(request, HttpStatus.OK, ArtifactDTO.class);
-        // TODO: Validate artifact
+        assertImage(artifact, FileVisibility.PUBLIC);
     }
 
+    @Test
+    @Order(8)
+    public void getImagesForUser1() throws Exception {
+        setAccessToken(user1AccessToken);
+
+        var request = get(URL_USER_FILES, user1ID);
+
+        var artifacts = preform(request, HttpStatus.OK, new TypeReference<List<ArtifactDTO>>() {});
+        assertFalse(artifacts.isEmpty());
+        assertImage(artifacts.get(0), FileVisibility.PUBLIC);
+    }
+
+    @Test
+    @Order(9)
+    public void user2CanSeeUser1sFiles() throws Exception {
+        setAccessToken(user2AccessToken);
+
+        var request = get(URL_USER_FILES, user1ID);
+
+        var artifacts = preform(request, HttpStatus.OK, new TypeReference<List<ArtifactDTO>>() {});
+        assertFalse(artifacts.isEmpty());
+        assertImage(artifacts.get(0), FileVisibility.PUBLIC);
+    }
+
+    @Test
+    @Order(10)
+    public void getImagesForUser2() throws Exception {
+        setAccessToken(user2AccessToken);
+
+        var request = get(URL_USER_FILES, user2ID);
+
+        var artifacts = preform(request, HttpStatus.OK, new TypeReference<List<ArtifactDTO>>() {});
+        assertTrue(artifacts.isEmpty());
+    }
+
+    @Test
+    @Order(11)
+    public void uploadSecondImage() throws Exception {
+        setAccessToken(user1AccessToken);
+
+        var pic = getPicture("cat.jpg");
+
+
+        var request = multipart(URL_USER_FILES, user1ID)
+            .file(pic);
+
+        var artifact = preform(request, HttpStatus.CREATED, ArtifactDTO.class);
+        assertCat(artifact, FileVisibility.PRIVATE);
+    }
+
+    @Test
+    @Order(12)
+    public void user1CanSeeAllTheirImages() throws Exception {
+        setAccessToken(user1AccessToken);
+
+        var request = get(URL_USER_FILES, user1ID);
+
+        var artifacts = preform(request, HttpStatus.OK, new TypeReference<List<ArtifactDTO>>() {});
+        assertEquals(2, artifacts.size());
+    }
+
+    @Test
+    @Order(13)
+    public void user2CanSeeOnlyPublicImages() throws Exception {
+        setAccessToken(user2AccessToken);
+
+        var request = get(URL_USER_FILES, user1ID);
+
+        var artifacts = preform(request, HttpStatus.OK, new TypeReference<List<ArtifactDTO>>() {});
+        assertEquals(1, artifacts.size());
+    }
+
+    @Test
+    @Order(14)
+    public void user2TryDeleteUser1PublicImage() throws Exception {
+        setAccessToken(user2AccessToken);
+
+        var request = delete(URL_USER_FILE, user1ID, pic1Id);
+
+        preform(request, HttpStatus.NOT_FOUND);
+    }
+
+    private void assertImage(ArtifactDTO artifact, FileVisibility visibility) {
+        assertEquals(artifact.getOwner(), USER1);
+        assertEquals(artifact.getSha256(), FILE_CHECKSUM);
+        assertEquals(artifact.getFileType(), FILE_CONTENT_TYPE);
+        assertEquals(artifact.getType(), FILE_TYPE);
+        assertEquals(artifact.getVisibility(), visibility);
+    }
+
+    private void assertCat(ArtifactDTO artifact, FileVisibility visibility) {
+        assertEquals(artifact.getOwner(), USER1);
+        assertEquals(artifact.getSha256(), "1c2746bef0ac1dfa97732d7b6c0659367f4d9572a875cd91dba64011985e8aea");
+        assertEquals(artifact.getFileType(), FILE_CONTENT_TYPE);
+        assertEquals(artifact.getType(), FILE_TYPE);
+        assertEquals(artifact.getVisibility(), visibility);
+    }
 
     private MockMultipartFile getPicture(String pic) throws IOException {
         try(var in = ClassLoader.getSystemResourceAsStream("images/"+pic)) {
-            return new MockMultipartFile("file", pic, "image/jpeg", in);
+            return new MockMultipartFile("file", pic, FILE_CONTENT_TYPE, in);
         }
     }
 
