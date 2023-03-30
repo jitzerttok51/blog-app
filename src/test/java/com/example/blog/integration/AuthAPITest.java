@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
     webEnvironment = SpringBootTest.WebEnvironment.MOCK
 )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext
 public class AuthAPITest extends AbstractIntegrationTest {
 
     @Autowired
@@ -110,6 +112,10 @@ public class AuthAPITest extends AbstractIntegrationTest {
     @Test
     @Order(5)
     public void changePassword() throws Exception {
+        // Here we wait for the token to expire so that user is modified not at the JWT creation time
+        // This only happens in Mock MVC because everything uses one JVM process there is no
+        // client server traffic
+        Thread.sleep(1000);
         var body = preform(get("/users/"+adminId), HttpStatus.OK, UserDTO.class);
 
         assertEquals(adminId, body.getId());
@@ -127,7 +133,6 @@ public class AuthAPITest extends AbstractIntegrationTest {
 
         assertEquals(adminId, body.getId());
         assertEquals(ADMIN_USERNAME, body.getUsername());
-        Thread.sleep(1000);
     }
 
     @Test

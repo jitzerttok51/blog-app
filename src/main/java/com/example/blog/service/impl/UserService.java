@@ -116,6 +116,12 @@ public class UserService implements IUserService {
 
         var user = repository
             .findUserByUsername(username)
+                       .map(u-> {
+                           log.info("User modified date {}", u.getModifiedDate());
+                           log.info("Jwt creation date {}", notModifiedAfter);
+                           log.info("Result: {}", u.getModifiedDate().minusSeconds(1).isBefore(notModifiedAfter));
+                           return u;
+                       })
             .filter(u->u.getModifiedDate().minusSeconds(1).isBefore(notModifiedAfter))
             .orElseThrow(() -> this.userNotFound(username));
 
