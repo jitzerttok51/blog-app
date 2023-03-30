@@ -23,12 +23,13 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/changelog-master.xml
 
-#logging.level:
-#   org.springframework: DEBUG
+logging.level:
+   org.springframework: DEBUG
 
 # static files
-spring.mvc.static-path-pattern: /storage/**
-spring.web.resources.static-locations: "file:./files"
+storage.local:
+  location: file:files/
+  url: "http://localhost:8080/storage"
 
 # Spring Actuator
 management:

@@ -20,7 +20,12 @@ public class LocalFileStorageImpl implements IFileContainer {
 
     private final Path storage;
 
-    private LocalFileStorageImpl(@Value("${spring.web.resources.static-locations}") String pathRaw) {
+    private final String baseURL;
+
+    private LocalFileStorageImpl(
+        @Value("${storage.local.location}") String pathRaw,
+        @Value("${storage.local.url}") String baseUrl) {
+        baseURL = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         storage = Path.of(pathRaw.replace("file:", ""));
     }
 
@@ -42,7 +47,7 @@ public class LocalFileStorageImpl implements IFileContainer {
 
     @Override
     public Optional<URI> getDownloadURL(Path location) {
-        return Optional.of(URI.create("http://localhost:8080/storage/"+location.getFileName()));
+        return Optional.of(URI.create(baseURL+location.getFileName()));
     }
 
     @Override

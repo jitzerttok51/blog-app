@@ -23,8 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.example.blog.constants.URLConstants.ENDPOINT_USERS;
+
 @RestController
-@RequestMapping("api/users")
+@RequestMapping(ENDPOINT_USERS)
 @RequiredArgsConstructor
 public class UserController {
 
