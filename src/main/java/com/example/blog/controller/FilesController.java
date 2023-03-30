@@ -18,7 +18,7 @@ import java.net.URI;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("api/files")
 @RequiredArgsConstructor
 public class FilesController {
 

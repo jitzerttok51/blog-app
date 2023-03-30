@@ -4,6 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+/files
 
 ### STS ###
 .apt_generated
@@ -35,3 +36,42 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Compiled output
+dist
+tmp
+out-tsc
+bazel-out
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+postgres-data
+frontend/.angular/cache
+.sass-cache/
+connect.lock
+coverage
+libpeerconnection.log
+testem.log
+typings
+
+# System files
+.DS_Store
+Thumbs.db

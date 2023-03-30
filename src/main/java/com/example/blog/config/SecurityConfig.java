@@ -12,11 +12,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@EnableWebMvc
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,10 +37,27 @@ public class SecurityConfig {
                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                    .and()
             .authorizeHttpRequests()
-            .requestMatchers(HttpMethod.POST, "/users", "/auth").permitAll()
-            .requestMatchers("/storage/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/users", "/api/auth").permitAll()
+            .requestMatchers("/storage/**", "/*", "/actuator/**").permitAll()
+            .requestMatchers("/api").authenticated()
             .anyRequest().authenticated()
             .and().httpBasic()
             .and().build();
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry
+            .addResourceHandler("/storage/**")
+            .addResourceLocations("file:./files/");
+
+        registry
+            .addResourceHandler("/*")
+            .addResourceLocations("classpath:/frontend/");
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addRedirectViewController("/", "index.html");
     }
 }
